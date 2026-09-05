@@ -33,4 +33,51 @@ There's no frontend here on purpose. This is meant to be tested via Postman / an
 | Method | Endpoint | Auth required | Description |
 |----------|-----------|-----------|-----------|
 | POST   | /api/auth/register | 	No  | Create a new user   |
-| POST   | 	/api/auth/login   | 	No  |	Log in, returns a JWT token  |
+| POST   | 	/api/auth/login   | 	No  |	Log in, returns a JWT token  |  
+
+### Products
+| Method | Endpoint | Auth required | Description |
+|---|---|---|---|
+| POST | `/api/products` | No | Add a new product |
+| GET | `/api/products` | No | List all products |
+| GET | `/api/products/{id}` | No | Get one product |
+ 
+### Orders
+| Method | Endpoint | Auth required | Description |
+|---|---|---|---|
+| POST | `/api/orders` | **Yes** | Place an order (checks stock, calculates total, saves everything transactionally) |
+ 
+### Payments
+| Method | Endpoint | Auth required | Description |
+|---|---|---|---|
+| POST | `/api/payments/create/{orderId}` | **Yes** | Creates a PayPal order, returns an approval link |
+| POST | `/api/payments/capture/{orderId}` | **Yes** | Confirms the payment with PayPal and marks the order paid |  
+
+### Sample request — placing an order
+ 
+```json
+POST /api/orders
+Authorization: Bearer <your-jwt-token>
+ 
+{
+  "userId": 1,
+  "items": [
+    { "productId": 1, "quantity": 2 },
+    { "productId": 2, "quantity": 1 }
+  ]
+}
+```  
+
+## Running it locally
+ 
+1. Create a Postgres database:
+```sql
+   CREATE DATABASE ecommerce_db;
+```
+2. Update `src/main/resources/application.properties` with your own DB credentials and a JWT secret.
+3. Add your own PayPal sandbox `client id` / `secret` if you want to test the payment flow.
+4. Run it:
+```bash
+   mvn spring-boot:run
+```
+5. Test with Postman — register a user, log in, grab the token, and go from there.
