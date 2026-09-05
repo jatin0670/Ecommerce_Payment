@@ -4,11 +4,10 @@ import com.example.ecommerce_backend.entity.Order;
 import com.example.ecommerce_backend.entity.OrderStatus;
 import com.example.ecommerce_backend.repository.OrderRepository;
 import com.paypal.core.PayPalHttpClient;
+import com.paypal.http.HttpResponse;
 import com.paypal.orders.*;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
-
-import java.net.http.HttpResponse;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -28,6 +27,10 @@ public class PaymentService{
 
         OrderRequest paypalRequest = new OrderRequest();
         paypalRequest.checkoutPaymentIntent("CAPTURE");
+
+        paypalRequest.applicationContext(new ApplicationContext()
+                .returnUrl("http://localhost:8080/api/payments/success")
+                .cancelUrl("http://localhost:8080/api/payments/cancel"));
 
 
         List<PurchaseUnitRequest> purchaseUnits = new ArrayList<>();
@@ -63,7 +66,7 @@ public class PaymentService{
     public Order capturePayment(Long orderId) throws Exception {
         Order order = orderRepository.findById(orderId).orElseThrow(() -> new RuntimeException("Order Not Found"));
 
-        OrderCaptureRequest request = new OrderCaptureRequest(order.getPaypalOrderId());
+        OrdersCaptureRequest request = new OrdersCaptureRequest(order.getPaypalOrderId());
 
         HttpResponse<com.paypal.orders.Order> response = payPalHttpClient.execute(request);
         com.paypal.orders.Order captured = response.result();

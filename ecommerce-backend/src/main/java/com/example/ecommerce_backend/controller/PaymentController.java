@@ -24,4 +24,16 @@ public class PaymentController {
     }
 
 
+    @GetMapping("/success")
+    public String paymentSuccess(@RequestParam("token") String paypalOrderId) {
+        return "Payment approved! PayPal Order ID: " + paypalOrderId +
+                ". Now call POST /api/payments/capture/{yourOrderId} to finalize it.";
+    }
+
+    @GetMapping("/cancel")
+    public String paymentCancelled() {
+        return "Payment was cancelled by the user.";
+    }
+
+
 }
